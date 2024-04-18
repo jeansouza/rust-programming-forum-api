@@ -8,6 +8,7 @@ use axum::{
 
 mod handlers;
 mod models;
+mod persistance;
 
 extern crate pretty_env_logger;
 #[macro_use] extern crate log;
@@ -21,17 +22,7 @@ async fn main() {
 
   let url = env::var("DATABASE_URL").unwrap();
 
-  let pool = PgPoolOptions::new()
-    .max_connections(5)
-    .connect(&url).await.unwrap();
-
-  let recs = sqlx::query!("SELECT * FROM questions")
-    .fetch_all(&pool)
-    .await
-    .unwrap();
-
-  info!("********* Question Records *********");
-  info!("{:?}", recs);
+  
 
   let app = Router::new()
       .route("/question", post(create_question))
