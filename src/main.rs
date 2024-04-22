@@ -40,10 +40,13 @@ async fn main() {
       .await
       .expect("Failed to create Postgres connection pool!");
 
-  let questions_dao = todo!(); // create a new instance of QuestionsDaoImpl passing in `pool` (use the clone method)
-  let answers_dao = todo!(); // create a new instance of AnswersDaoImpl passing in `pool`
+  let questions_dao = QuestionsDaoImpl::new(pool.clone());
+  let answers_dao = AnswersDaoImpl::new(pool.clone());
 
-  let app_state = todo!(); // create a new instance of AppState
+  let app_state = AppState {
+    questions_dao: Arc::new(questions_dao),
+    answers_dao: Arc::new(answers_dao),
+  };
 
   let app = Router::new()
       .route("/question", post(create_question))
@@ -52,8 +55,7 @@ async fn main() {
       .route("/answer", post(create_answer))
       .route("/answers", get(read_answers))
       .route("/answer", delete(delete_answer))
-      // The with_state method allows us to add state to the state managed by this instance of Axum. Then we can use this state in the handlers.
-      .with_state(todo!()); // pass in `app_state` as application state.
+      .with_state(app_state);
 
   let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
       .await
